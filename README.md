@@ -79,3 +79,79 @@ class ZiggyTest2{
             return new String(plainText, "UTF-8");
         }
     }
+
+
+
+
+
+
+
+
+
+import java.io.IOException;  
+import java.security.InvalidKeyException;  
+import java.security.NoSuchAlgorithmException;  
+import java.security.spec.InvalidKeySpecException;  
+   
+import javax.crypto.Cipher;  
+import javax.crypto.SecretKey;  
+import javax.crypto.SecretKeyFactory;  
+import javax.crypto.spec.DESedeKeySpec;  
+   
+public class EncryptTripleDes  
+{  
+   
+private static byte[] encrypt(byte[] inpBytes, SecretKey key) throws Exception  
+{  
+Cipher cipher = Cipher.getInstance("DESede");  
+cipher.init(Cipher.ENCRYPT_MODE, key);  
+return cipher.doFinal(inpBytes);  
+}  
+   
+private static byte[] decrypt(byte[] inpBytes, SecretKey key) throws Exception  
+{  
+Cipher cipher = Cipher.getInstance("DESede");  
+cipher.init(Cipher.DECRYPT_MODE, key);  
+return cipher.doFinal(inpBytes);  
+}  
+   
+/** Read a TripleDES secret key from the specified file */  
+private static SecretKey readKey(String keyStr) throws IOException, NoSuchAlgorithmException, InvalidKeyException,  
+InvalidKeySpecException  
+{  
+// Convert Key Str to bytes  
+byte[] rawkey = new byte[1024];  
+rawkey = keyStr.getBytes("UTF-8");  
+   
+// Convert the raw bytes to a secret key like this  
+DESedeKeySpec keyspec = new DESedeKeySpec(rawkey);  
+SecretKeyFactory keyfactory = SecretKeyFactory.getInstance("DESede");  
+SecretKey key = keyfactory.generateSecret(keyspec);  
+return key;  
+}  
+  
+public byte[] encryptPin(String pin) {  
+  
+byte[] pinBytes = pin.getBytes(); // pin = "1234567890123456";  
+byte[] encBytes= null;  
+byte[] decBytes= null;  
+byte[] encPin = null;  
+  
+try  
+{  
+SecretKey key1 = readKey("6194E4CD35B5E4342036D45258F7304BA37136BE90808912");  
+SecretKey key2 = readKey("23BCA1FB74D2C557506223336F5404CF36555ADD90808915");  
+SecretKey key3 = readKey("919EE5FB75B3E337406462648F5404BF37155BE908089138");  
+encBytes = encrypt(pinBytes, key1);  
+decBytes = decrypt(encBytes, key2);  
+encPin = encrypt(decBytes, key3);  
+}  
+catch (Exception e)  
+{  
+e.printStackTrace();  
+}  
+  
+return encPin;  
+  
+}  
+}
